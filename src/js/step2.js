@@ -2,6 +2,9 @@
 
 // TODO localStorage Read & Write
 // - [] localStorage에 데이터를 저장한다.
+//  -[x] 메뉴를 추가할 때
+//  -[x] 메뉴를 수정할 때
+//  -[] 메뉴를 삭제할 때
 // - [] localStorage에 있는 데이터를 읽어온다.
 
 // TODO 카테고리별 메뉴판 관리
@@ -60,8 +63,9 @@ function App() {
     store.setLocalStorage(this.menu);
     // map를 통해 this.menu의 메뉴들 각각 마크업 시키기
     const template = this.menu
-      .map((item) => {
-        return `<li class="menu-list-item d-flex items-center py-2">
+      .map((item, index) => {
+        // data- : 어떤 data를 저장하고 싶을 때 사용하는 표준 속성
+        return `<li data-menu-id="${index}" class="menu-list-item d-flex items-center py-2">
       <span class="w-100 pl-2 menu-name">${item.name}</span>
       <button
         type="button"
@@ -88,8 +92,11 @@ function App() {
   };
 
   const updateMenuName = (e) => {
+    const menuId = e.target.closest("li").dataset.menuId;
     const $menuName = e.target.closest("li").querySelector(".menu-name");
     const updatedMenuName = prompt("메뉴명을 수정하세요", $menuName.innerText);
+    this.menu[menuId].name = updatedMenuName;
+    store.setLocalStorage(this.menu);
     $menuName.innerText = updatedMenuName;
   };
 
