@@ -1,11 +1,11 @@
 // step2 요구사항 - 상태 관리로 메뉴 관리하기
 
 // TODO localStorage Read & Write
-// - [] localStorage에 데이터를 저장한다.
+// - [x] localStorage에 데이터를 저장한다.
 //  -[x] 메뉴를 추가할 때
 //  -[x] 메뉴를 수정할 때
-//  -[] 메뉴를 삭제할 때
-// - [] localStorage에 있는 데이터를 읽어온다.
+//  -[x] 메뉴를 삭제할 때
+// - [x] localStorage에 있는 데이터를 읽어온다.
 
 // TODO 카테고리별 메뉴판 관리
 // - [] 에스프레소 메뉴판 관리
@@ -35,7 +35,7 @@ const store = {
     //LocalStorage에는 문자열로만 저장되어야한다. - JSON.stringify()
   },
   getLocalStorage() {
-    localStorage.getItem("menu");
+    return JSON.parse(localStorage.getItem("menu"));
   },
 };
 
@@ -43,25 +43,15 @@ function App() {
   // 상태(변하는 데이터) - 메뉴명
   this.menu = [];
   // 메뉴는 여러개이므로 배열로 초기화해준다.
-
-  // 재사용 함수
-  const updateMenuCount = () => {
-    const menuCount = $("#espresso-menu-list").querySelectorAll("li").length;
-    // 변수명은 클래스명이나 요소의 힌트들을 사용해서 작명하자.
-    $(".menu-count").innerText = `총 ${menuCount}개`;
+  this.init = () => {
+    if (store.getLocalStorage().length > 1) {
+      this.menu = store.getLocalStorage();
+    }
+    render();
   };
 
-  const addMenuName = () => {
-    if ($("#espresso-menu-name").value === "") {
-      alert("값을 입력해주세요");
-      return;
-    }
-    const espressoMenuName = $("#espresso-menu-name").value;
-    // 1. this.menu(상태)에 메뉴들 추가하기
-    this.menu.push({ name: espressoMenuName });
-    // 2. this.menu를 LocalStorage에도 저장하기
-    store.setLocalStorage(this.menu);
-    // map를 통해 this.menu의 메뉴들 각각 마크업 시키기
+  // 재사용 함수
+  const render = () => {
     const template = this.menu
       .map((item, index) => {
         // data- : 어떤 data를 저장하고 싶을 때 사용하는 표준 속성
@@ -85,9 +75,28 @@ function App() {
     // template => ['<li>~</li>','<li>~</li>...'] 이런 배열 형태
     // 하나의 마크업으로 만들기 위해 문자열로 바꿔야한다. .join("") 추가해서 해결
     // '<li>~</li><li>~</li>...' 문자열 형태로 변경
-
     $("#espresso-menu-list").innerHTML = template;
     updateMenuCount();
+  };
+
+  const updateMenuCount = () => {
+    const menuCount = $("#espresso-menu-list").querySelectorAll("li").length;
+    // 변수명은 클래스명이나 요소의 힌트들을 사용해서 작명하자.
+    $(".menu-count").innerText = `총 ${menuCount}개`;
+  };
+
+  const addMenuName = () => {
+    if ($("#espresso-menu-name").value === "") {
+      alert("값을 입력해주세요");
+      return;
+    }
+    const espressoMenuName = $("#espresso-menu-name").value;
+    // 1. this.menu(상태)에 메뉴들 추가하기
+    this.menu.push({ name: espressoMenuName });
+    // 2. this.menu를 LocalStorage에도 저장하기
+    store.setLocalStorage(this.menu);
+    // map를 통해 this.menu의 메뉴들 각각 마크업 시키기
+    render();
     $("#espresso-menu-name").value = "";
   };
 
@@ -141,3 +150,4 @@ function App() {
 }
 
 const app = new App();
+app.init();
