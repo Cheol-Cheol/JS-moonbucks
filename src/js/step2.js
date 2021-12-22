@@ -8,7 +8,7 @@
 // - [x] localStorage에 있는 데이터를 읽어온다.
 
 // TODO 카테고리별 메뉴판 관리
-// - [] 에스프레소 메뉴판 관리
+// - [x] 에스프레소 메뉴판 관리
 // - [] 프라푸치노 메뉴판 관리
 // - [] 블렌디드 메뉴판 관리
 // - [] 티바나 메뉴판 관리
@@ -41,10 +41,16 @@ const store = {
 
 function App() {
   // 상태(변하는 데이터) - 메뉴명
-  this.menu = [];
-  // 메뉴는 여러개이므로 배열로 초기화해준다.
+  this.menu = {
+    espresso: [],
+    frappuccino: [],
+    blended: [],
+    teavana: [],
+    desert: [],
+  };
+  this.currentCategory = "espresso";
   this.init = () => {
-    if (store.getLocalStorage().length > 1) {
+    if (store.getLocalStorage()) {
       this.menu = store.getLocalStorage();
     }
     render();
@@ -52,7 +58,7 @@ function App() {
 
   // 재사용 함수
   const render = () => {
-    const template = this.menu
+    const template = this.menu[this.currentCategory]
       .map((item, index) => {
         // data- : 어떤 data를 저장하고 싶을 때 사용하는 표준 속성
         return `<li data-menu-id="${index}" class="menu-list-item d-flex items-center py-2">
@@ -92,7 +98,7 @@ function App() {
     }
     const espressoMenuName = $("#espresso-menu-name").value;
     // 1. this.menu(상태)에 메뉴들 추가하기
-    this.menu.push({ name: espressoMenuName });
+    this.menu[this.currentCategory].push({ name: espressoMenuName });
     // 2. this.menu를 LocalStorage에도 저장하기
     store.setLocalStorage(this.menu);
     // map를 통해 this.menu의 메뉴들 각각 마크업 시키기
@@ -146,6 +152,14 @@ function App() {
       return;
     }
     addMenuName();
+  });
+
+  $("nav").addEventListener("click", (e) => {
+    const isCategoryButton = e.target.classList.contains("cafe-category-name");
+    if (isCategoryButton) {
+      const categoryName = e.target.dataset.categoryName;
+      console.log(categoryName);
+    }
   });
 }
 
