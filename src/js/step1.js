@@ -8,11 +8,46 @@
 // - [x] 메뉴가 추가되면, input은 빈 값으로 초기화한다.
 // - [x] 사용자 입력값이 빈 값이라면 추가되지 않는다.
 
+// TODO 메뉴 수정
+// - [x] 메뉴의 수정 버튼을 눌러 메뉴 이름을 업데이트한다.
+// - [x] 메뉴 수정시 브라우저에서 제공하는 prompt 인터페이스를 활용한다.
+
+// TODO 메뉴 삭제
+// - [x] 메뉴 삭제 버튼을 이용하여 메뉴 삭제 confirm 인터페이스를 활용한다.
+// - [x] 확인 버튼을 클릭하면 메뉴가 삭제된다.
+// - [x] 총 메뉴 갯수를 count하여 상단에 보여준다.
+
 // 중복된 코드들을 줄이기 위해 일종의 util를 사용한다.
 // HTML element를 가져올 때 '$'을 관용적으로 사용한다.
 const $ = (selector) => document.querySelector(selector);
 
 function App() {
+  const updateMenuCount = () => {
+    const menuCount = $("#espresso-menu-list").querySelectorAll("li").length;
+    // 변수명은 클래스명이나 요소의 힌트들을 사용해서 작명하자.
+    $(".menu-count").innerText = `총 ${menuCount}개`;
+  };
+  // 이벤트 위임 - e.target
+  $("#espresso-menu-list").addEventListener("click", (e) => {
+    if (e.target.classList.contains("menu-edit-button")) {
+      // classList.contains() & .closest()
+      const $menuName = e.target.closest("li").querySelector(".menu-name");
+      const updatedMenuName = prompt(
+        "메뉴명을 수정하세요",
+        $menuName.innerText
+      );
+      $menuName.innerText = updatedMenuName;
+    }
+
+    if (e.target.classList.contains("menu-remove-button")) {
+      if (confirm("정말 삭제하시겠습니까?")) {
+        e.target.closest("li").remove();
+        // .remove() : DOM element를 삭제해주는 메소드
+        updateMenuCount();
+      }
+    }
+  });
+
   // form태그가 자동으로 전송되는 것을 막아준다.
   $("#espresso-menu-form").addEventListener("submit", (e) => {
     e.preventDefault();
@@ -48,9 +83,7 @@ function App() {
       "beforeend",
       menuItemTemplate(espressoMenuName)
     );
-    const menuCount = $("#espresso-menu-list").querySelectorAll("li").length;
-    // 변수명은 클래스명이나 요소의 힌트들을 사용해서 작명하자.
-    $(".menu-count").innerText = `총 ${menuCount}개`;
+    updateMenuCount();
     $("#espresso-menu-name").value = "";
   };
   $("#espresso-menu-submit-button").addEventListener("click", (e) => {
@@ -67,12 +100,3 @@ function App() {
 }
 
 App();
-
-// TODO 메뉴 수정
-// - [] 메뉴의 수정 버튼을 눌러 메뉴 이름을 업데이트한다.
-// - [] 메뉴 수정시 브라우저에서 제공하는 prompt 인터페이스를 활용한다.
-
-// TODO 메뉴 삭제
-// - [] 메뉴 삭제 버튼을 이용하여 메뉴 삭제 confirm 인터페이스를 활용한다.
-// - [] 확인 버튼을 클릭하면 메뉴가 삭제된다.
-// - [] 총 메뉴 갯수를 count하여 상단에 보여준다.
