@@ -22,37 +22,13 @@
 const $ = (selector) => document.querySelector(selector);
 
 function App() {
+  // 재사용 함수
   const updateMenuCount = () => {
     const menuCount = $("#espresso-menu-list").querySelectorAll("li").length;
     // 변수명은 클래스명이나 요소의 힌트들을 사용해서 작명하자.
     $(".menu-count").innerText = `총 ${menuCount}개`;
   };
-  // 이벤트 위임 - e.target
-  $("#espresso-menu-list").addEventListener("click", (e) => {
-    if (e.target.classList.contains("menu-edit-button")) {
-      // classList.contains() & .closest()
-      const $menuName = e.target.closest("li").querySelector(".menu-name");
-      const updatedMenuName = prompt(
-        "메뉴명을 수정하세요",
-        $menuName.innerText
-      );
-      $menuName.innerText = updatedMenuName;
-    }
 
-    if (e.target.classList.contains("menu-remove-button")) {
-      if (confirm("정말 삭제하시겠습니까?")) {
-        e.target.closest("li").remove();
-        // .remove() : DOM element를 삭제해주는 메소드
-        updateMenuCount();
-      }
-    }
-  });
-
-  // form태그가 자동으로 전송되는 것을 막아준다.
-  $("#espresso-menu-form").addEventListener("submit", (e) => {
-    e.preventDefault();
-  });
-  // 재사용할 함수들
   const addMenuName = () => {
     if ($("#espresso-menu-name").value === "") {
       alert("값을 입력해주세요");
@@ -86,9 +62,40 @@ function App() {
     updateMenuCount();
     $("#espresso-menu-name").value = "";
   };
-  $("#espresso-menu-submit-button").addEventListener("click", (e) => {
-    addMenuName();
+
+  const updateMenuName = (e) => {
+    const $menuName = e.target.closest("li").querySelector(".menu-name");
+    const updatedMenuName = prompt("메뉴명을 수정하세요", $menuName.innerText);
+    $menuName.innerText = updatedMenuName;
+  };
+
+  const removeMenuName = (e) => {
+    if (confirm("정말 삭제하시겠습니까?")) {
+      e.target.closest("li").remove();
+      // .remove() : DOM element를 삭제해주는 메소드
+      updateMenuCount();
+    }
+  };
+
+  // 이벤트 함수들
+  // 이벤트 위임 - e.target
+  $("#espresso-menu-list").addEventListener("click", (e) => {
+    if (e.target.classList.contains("menu-edit-button")) {
+      // classList.contains() & .closest()
+      updateMenuName(e);
+    }
+
+    if (e.target.classList.contains("menu-remove-button")) {
+      removeMenuName(e);
+    }
   });
+
+  // form태그가 자동으로 전송되는 것을 막아준다.
+  $("#espresso-menu-form").addEventListener("submit", (e) => {
+    e.preventDefault();
+  });
+
+  $("#espresso-menu-submit-button").addEventListener("click", addMenuName);
 
   // 메뉴의 이름을 입력받는건
   $("#espresso-menu-name").addEventListener("keypress", (e) => {
