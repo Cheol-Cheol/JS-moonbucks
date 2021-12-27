@@ -19,10 +19,10 @@
 // - [x] 에스프레소 메뉴를 페이지에 그려준다.
 
 // TODO 품절 상태 관리
-// - [] 품절 버튼을 추가한다.
-// - [] 품절 버튼을 클릭하면 localStorage에 상태값이 저장된다.
-// - [] 품절 해당메뉴의 상태값이 페이지에 그려진다.
-// - [] 클릭 이벤트에서 가장 가까운 li 태그의 class 속성 값에 sold-out을 추가한다.
+// - [x] 품절 버튼을 추가한다.
+// - [x] 품절 버튼을 클릭하면 localStorage에 상태값이 저장된다.
+// - [x] 품절 해당메뉴의 상태값이 페이지에 그려진다.
+// - [x] 클릭 이벤트에서 가장 가까운 li 태그의 class 속성 값에 sold-out을 추가한다.
 
 // 중복된 코드들을 줄이기 위해 일종의 util를 사용한다.
 // HTML element를 가져올 때 '$'을 관용적으로 사용한다.
@@ -64,7 +64,15 @@ function App() {
       .map((item, index) => {
         // data- : 어떤 data를 저장하고 싶을 때 사용하는 표준 속성
         return `<li data-menu-id="${index}" class="menu-list-item d-flex items-center py-2">
-      <span class="w-100 pl-2 menu-name">${item.name}</span>
+      <span class="w-100 pl-2 menu-name ${item.soldOut ? "sold-out" : ""}">${
+          item.name
+        }</span>
+      <button
+      type="button"
+      class="bg-gray-50 text-gray-500 text-sm mr-1 menu-sold-out-button"
+      >
+        품절
+      </button>
       <button
         type="button"
         class="bg-gray-50 text-gray-500 text-sm mr-1 menu-edit-button"
@@ -128,16 +136,32 @@ function App() {
     }
   };
 
+  const soldOutMenu = (e) => {
+    const menuId = e.target.closest("li").dataset.menuId;
+    this.menu[this.currentCategory][menuId].soldOut =
+      !this.menu[this.currentCategory][menuId].soldOut;
+    store.setLocalStorage(this.menu);
+    render();
+  };
+
   // 이벤트 함수들
   // 이벤트 위임 - e.target
   $("#menu-list").addEventListener("click", (e) => {
+    // if 문이 여러 개 일 때 만약 첫번째 if를 돌면 나머지 if문은 돌 필요가 없기 때문에 return을 작성해주는 습관이 좋다.
     if (e.target.classList.contains("menu-edit-button")) {
       // classList.contains() & .closest()
       updateMenuName(e);
+      return;
     }
 
     if (e.target.classList.contains("menu-remove-button")) {
       removeMenuName(e);
+      return;
+    }
+
+    if (e.target.classList.contains("menu-sold-out-button")) {
+      soldOutMenu(e);
+      return;
     }
   });
 
