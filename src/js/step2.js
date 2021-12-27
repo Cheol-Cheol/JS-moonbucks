@@ -1,31 +1,3 @@
-// step2 요구사항 - 상태 관리로 메뉴 관리하기
-
-// TODO localStorage Read & Write
-// - [x] localStorage에 데이터를 저장한다.
-//  -[x] 메뉴를 추가할 때
-//  -[x] 메뉴를 수정할 때
-//  -[x] 메뉴를 삭제할 때
-// - [x] localStorage에 있는 데이터를 읽어온다.
-
-// TODO 카테고리별 메뉴판 관리
-// - [x] 에스프레소 메뉴판 관리
-// - [x] 프라푸치노 메뉴판 관리
-// - [x] 블렌디드 메뉴판 관리
-// - [x] 티바나 메뉴판 관리
-// - [x] 디저트 메뉴판 관리
-
-// TODO 페이지 접근시 최초 데이터 Read & Rendering
-// - [x] 페이지에 최초로 로딩될 때 localStorage에 에스프레소 메뉴를 읽어온다.
-// - [x] 에스프레소 메뉴를 페이지에 그려준다.
-
-// TODO 품절 상태 관리
-// - [x] 품절 버튼을 추가한다.
-// - [x] 품절 버튼을 클릭하면 localStorage에 상태값이 저장된다.
-// - [x] 품절 해당메뉴의 상태값이 페이지에 그려진다.
-// - [x] 클릭 이벤트에서 가장 가까운 li 태그의 class 속성 값에 sold-out을 추가한다.
-
-// 중복된 코드들을 줄이기 위해 일종의 util를 사용한다.
-// HTML element를 가져올 때 '$'을 관용적으로 사용한다.
 import { $ } from "./utils/dom.js";
 import store from "./store/index.js";
 
@@ -46,11 +18,12 @@ function App() {
       this.menu = store.getLocalStorage();
     }
     render();
-    this.initEventListeners();
+    initEventListeners();
   };
 
   // 재사용 함수
   const render = () => {
+    // map를 통해 this.menu의 메뉴들 각각 마크업 시키기
     const template = this.menu[this.currentCategory]
       .map((item, index) => {
         // data- : 어떤 data를 저장하고 싶을 때 사용하는 표준 속성
@@ -100,9 +73,10 @@ function App() {
     const menuName = $("#menu-name").value;
     // 1. this.menu(상태)에 메뉴들 추가하기
     this.menu[this.currentCategory].push({ name: menuName });
+    // push()안에 인자를 객체로 준다. why?) 여러개의 데이터를 속성을 통해 불러오기 위해
     // 2. this.menu를 LocalStorage에도 저장하기
     store.setLocalStorage(this.menu);
-    // map를 통해 this.menu의 메뉴들 각각 마크업 시키기
+
     render();
     $("#menu-name").value = "";
   };
