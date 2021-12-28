@@ -1,5 +1,5 @@
 // TODO 서버 요청 부분
-// - [] 웹 서버를 띄운다.
+// - [x] 웹 서버를 띄운다.
 // - [] 서버에 새로운 메뉴명을 추가될 수 있도록 요청한다.
 // - [] 서버에 카테고리별 메뉴리스트를 불러오도록 요청한다.
 // - [] 서버에 메뉴가 수정될 수 있도록 요청한다.
@@ -16,6 +16,8 @@
 
 import { $ } from "./utils/dom.js";
 import store from "./store/index.js";
+
+const BASE_URL = "http://localhost:3000/api";
 
 function App() {
   // 상태(변하는 데이터) - 메뉴명
@@ -37,7 +39,6 @@ function App() {
     initEventListeners();
   };
 
-  // 재사용 함수
   const render = () => {
     // map를 통해 this.menu의 메뉴들 각각 마크업 시키기
     const template = this.menu[this.currentCategory]
@@ -81,20 +82,37 @@ function App() {
     $(".menu-count").innerText = `총 ${menuCount}개`;
   };
 
-  const addMenuName = () => {
+  const addMenuName = async () => {
     if ($("#menu-name").value === "") {
       alert("값을 입력해주세요");
       return;
     }
     const menuName = $("#menu-name").value;
-    // 1. this.menu(상태)에 메뉴들 추가하기
-    this.menu[this.currentCategory].push({ name: menuName });
-    // push()안에 인자를 객체로 준다. why?) 여러개의 데이터를 속성을 통해 불러오기 위해
-    // 2. this.menu를 LocalStorage에도 저장하기
-    store.setLocalStorage(this.menu);
 
-    render();
-    $("#menu-name").value = "";
+    await fetch(`${BASE_URL}/category/${this.currentCategory}/menu`, {
+      method: "POST",
+      // POST - 생성
+      headers: {
+        "Content-Type": "application/json",
+        // 데이터를 주고 받는 형태 - 여기선 json
+      },
+      body: JSON.stringify({ name: menuName }),
+      // 추가된 메뉴
+    }).then((response) => {
+      return response.json();
+      // 응답 객체에서 서버가 내려준 데이터를 받으려면 .json() 메소드를 사용해야한다.
+    });
+
+    await fetch(`${BASE_URL}/category/${this.currentCategory}/menu`)
+      // 카테고리별 메뉴리스트를 불러오는 api
+      .then((response) => {
+        return response.json();
+      })
+      .then((data) => {
+        this.menu[this.currentCategory] = data;
+        render();
+        $("#menu-name").value = "";
+      });
   };
 
   const updateMenuName = (e) => {
