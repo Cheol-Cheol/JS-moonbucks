@@ -12,9 +12,10 @@
 
 // TODO 사용자 경험
 // - [x] API 통신이 실패하는 경우에 대해 사용자가 알 수 있게 alert으로 예외처리를 진행한다.
-// - [] 중복되는 메뉴는 추가할 수 없다.
+// - [x] 중복되는 메뉴는 추가할 수 없다.
 
 import { $ } from "./utils/dom.js";
+import store from "./store/index.js";
 import MenuApi from "./api/index.js";
 
 function App() {
@@ -37,10 +38,10 @@ function App() {
     initEventListeners();
   };
 
+  // 재사용 함수
   const render = async () => {
-    this.menu[this.currentCategory] = await MenuApi.getAllMenuByCategory(
-      this.currentCategory
-    );
+    const data = await MenuApi.getAllMenuByCategory(this.currentCategory);
+    this.menu[this.currentCategory] = data;
     // map를 통해 this.menu의 메뉴들 각각 마크업 시키기
     const template = this.menu[this.currentCategory]
       .map((item) => {
@@ -72,9 +73,6 @@ function App() {
     </li>`;
       })
       .join("");
-    // template => ['<li>~</li>','<li>~</li>...'] 이런 배열 형태
-    // 하나의 마크업으로 만들기 위해 문자열로 바꿔야한다. .join("") 추가해서 해결
-    // '<li>~</li><li>~</li>...' 문자열 형태로 변경
     $("#menu-list").innerHTML = template;
     updateMenuCount();
   };
@@ -90,6 +88,7 @@ function App() {
       alert("값을 입력해주세요");
       return;
     }
+    // 중복된 메뉴 검사
     const duplicatedItem = this.menu[this.currentCategory].find(
       (menuItem) => menuItem.name === $("#menu-name").value
     );
@@ -100,6 +99,7 @@ function App() {
     }
 
     const menuName = $("#menu-name").value;
+
     await MenuApi.createMenu(this.currentCategory, menuName);
 
     render();
@@ -110,6 +110,7 @@ function App() {
     const menuId = e.target.closest("li").dataset.menuId;
     const $menuName = e.target.closest("li").querySelector(".menu-name");
     const updatedMenuName = prompt("메뉴명을 수정하세요", $menuName.innerText);
+
     await MenuApi.updateMenu(this.currentCategory, updatedMenuName, menuId);
 
     render();
@@ -137,7 +138,6 @@ function App() {
       const categoryName = e.target.dataset.categoryName;
       this.currentCategory = categoryName;
       $("#category-title").innerText = `${e.target.innerText} 메뉴 관리`;
-
       render();
     }
   };
@@ -182,6 +182,5 @@ function App() {
     $("nav").addEventListener("click", changeCategory);
   };
 }
-
 const app = new App();
 app.init();
